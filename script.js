@@ -5,11 +5,11 @@ const NodeFactory = (value = null) => {
 }
 
 const LinkedListFactory = () => {
-    let _list = {};
+    let _list = {head: null, tail: null};
 
     const append = (value) => {
         const node = NodeFactory(value);
-        if (Object.keys(_list).length === 0) {
+        if (!_list.head) {
             _list.head = node;
             _list.tail = node;
         } else {
@@ -21,7 +21,7 @@ const LinkedListFactory = () => {
 
     const prepend = (value) => {
         const node = NodeFactory(value);
-        if (Object.keys(_list).length === 0) {
+        if (!_list.head) {
             _list.head = node;
             _list.tail = node;
         } else {
@@ -31,7 +31,7 @@ const LinkedListFactory = () => {
     }
 
     const size = () => {
-        if (Object.keys(_list).length === 0) return 0;
+        if (!_list.head) return 0;
         let count = 1;
         let prev = _list.head;
         while (prev.next) {
@@ -41,9 +41,9 @@ const LinkedListFactory = () => {
         return count;
     }
 
-    const head = () => (Object.keys(_list).length === 0) ? {}:_list.head;
+    const head = () => (!_list.head) ? {}:_list.head;
 
-    const tail = () => (Object.keys(_list).length === 0) ? {}:_list.tail;
+    const tail = () => (!_list.head) ? {}:_list.tail;
 
     const at = (index) => {
         if (index > size()-1) return 'index exceeds list length!';
@@ -56,7 +56,11 @@ const LinkedListFactory = () => {
     }
 
     const pop = () => {
-
+        if (!_list.head) return 'list is already empty!';
+        const returnValue = _list.tail.value; //store final value before removing it
+        _list.tail.prev.next = null;
+        _list.tail = _list.tail.prev;
+        return returnValue;
     }
 
     const contains = (value) => {
@@ -69,7 +73,7 @@ const LinkedListFactory = () => {
 
     const toString = () => {
         let string = '';
-        if (Object.keys(_list).length === 0) {
+        if (!_list.head) {
             string = 'list is empty!';
         } else {
             string = `( ${_list.head.value} )`;
