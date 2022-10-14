@@ -1,3 +1,5 @@
+const display = document.querySelector('.print');
+
 const NodeFactory = (value = null) => {
     let next = null;
     let prev = null;
@@ -6,6 +8,8 @@ const NodeFactory = (value = null) => {
 
 const LinkedListFactory = () => {
     let _list = {head: null, tail: null};
+
+    const updateDisplay = () => display.textContent = toString();
 
     const append = (value) => {
         const node = NodeFactory(value);
@@ -17,6 +21,7 @@ const LinkedListFactory = () => {
             _list.tail.next.prev = _list.tail;
             _list.tail = _list.tail.next;
         }
+        updateDisplay();
     }
 
     const prepend = (value) => {
@@ -28,14 +33,15 @@ const LinkedListFactory = () => {
             _list.head = {value: node.value, next: _list.head, prev: null}
             _list.head.next.prev = _list.head;
         }
+        updateDisplay();
     }
 
     const size = () => {
         if (!_list.head) return 0;
         let count = 1;
-        let prev = _list.head;
-        while (prev.next) {
-            prev = prev.next;
+        let current = _list.head;
+        while (current.next) {
+            current = current.next;
             count++;
         }
         return count;
@@ -47,12 +53,13 @@ const LinkedListFactory = () => {
 
     const at = (index) => {
         if (index > size()-1) return 'index exceeds list length!';
-        let currentNode = _list.head;
+        if (index < 0) return 'invalid input: negative index';
+        let current = _list.head;
         while (index > 0) {
             index--;
-            currentNode = currentNode.next;
+            current = current.next;
         }
-        return currentNode;
+        return current;
     }
 
     const pop = () => {
@@ -64,11 +71,33 @@ const LinkedListFactory = () => {
     }
 
     const contains = (value) => {
-
+        if (!_list.head) {
+            return 'list is empty!';
+        } else {
+            let current = _list.head;
+            if (current.value === value) return true;
+            while (current.next) {
+                if (current.next.value === value) return true;
+                current = current.next;
+            }
+            return false;
+        }
     }
 
     const find = (value) => {
-
+        let index = 0; //initial counter
+        if (!_list.head) {
+            return 'list is empty!';
+        } else {
+            let current = _list.head;
+            if (current.value === value) return index;
+            while (current.next) {
+                index++;
+                if (current.next.value === value) return index;
+                current = current.next;
+            }
+            return null;
+        }
     }
 
     const toString = () => {
@@ -77,31 +106,74 @@ const LinkedListFactory = () => {
             string = 'list is empty!';
         } else {
             string = `( ${_list.head.value} )`;
-            let prev = _list.head;
-            while (prev.next) {
-                string += ` -> ( ${prev.next.value} )`;
-                prev = prev.next;
+            let current = _list.head;
+            while (current.next) {
+                string += ` <--> ( ${current.next.value} )`;
+                current = current.next;
             }
         }
         return string;
     }
 
     const insertAt = (value, index) => {
+        if (index < 0) return 'invalid input: negative index';
+        if (index === 0) return prepend(value);
+        if (index >= size() || !_list.head) return append(value); //if index > list size OR list is empty, then append the value
 
+        let current = _list.head;
+        while (index > 0) {
+            current = current.next;
+            index--;
+        }
+        current = {value: value, next: current, prev: current.prev};
+        current.prev.next = current;
+        current.next.prev = current;
+
+        updateDisplay();
     }
 
     const removeAt = (index) => {
+        if (index < 0) return 'invalid input: negative index';
+        if (index >= size()) return 'invalid input: index greater than list length';
+        if (index === 0) {
+            if (size() === 1) {
+                _list.head = null;
+                _list.tail = null;
+                updateDisplay();
+                return;
+            }
+            _list.head = _list.head.next;
+            _list.head.prev = null;
+            updateDisplay();
+            return;
+        }
+        if (index === size() - 1) {
+            _list.tail = _list.tail.prev;
+            _list.tail.next = null;
+            updateDisplay();
+            return;
+        }
+        let current = _list.head;
+        while (index > 0) {
+            current = current.next;
+            index--;
+        }
+        current.prev.next = current.next;
+        current.next.prev = current.prev;
 
+        updateDisplay();
     }
 
     return {
-        append, prepend, size, head, tail, at, pop, contains, find, toString, insertAt, removeAt, _list //remove _list when finished, only returned for testing purposes
+        updateDisplay, append, prepend, size, head, tail, at, pop, contains, find, toString, insertAt, removeAt
     }
 }
 
 let list = LinkedListFactory();
 list.append(2);
 list.append(3);
-list.prepend(1);
-console.log(list._list, list.size());
-document.querySelector('.print').textContent = list.toString();
+list.prepend(0);
+list.insertAt(1,1);
+list.append('remove');
+list.removeAt(4);
+list.updateDisplay();
